@@ -35,8 +35,18 @@ bool fila_ehValida(FilaPrioridade* f){
  * Parâmetro enderecoFila: Endereço da variável que armazena o endereço da Fila de Prioridade
  */
 void filaP_destruir(FilaPrioridade** enderecoFila){
-   
+   if(enderecoFila == NULL) return;
+   if(!fila_ehValida(*enderecoFila)) return;
 
+   FilaPrioridade* f = *enderecoFila;
+   No* aux;
+   while (f->inicio != NULL)
+   {
+       aux = f->inicio;
+       f->inicio = f->inicio->prox;
+   }
+    free(f);
+    *enderecoFila = NULL;
 }
 
 /**
@@ -47,7 +57,33 @@ void filaP_destruir(FilaPrioridade** enderecoFila){
  * RETORNO: true se inserção ocorrer com sucesso e false caso contrário
  */
 bool filaP_inserir(FilaPrioridade* f, TipoElemento elemento){
-   
+    if(!fila_ehValida(f)) return false;
+
+    No* novo = (No*) malloc(sizeof(No));
+    No* aux;
+
+    novo->dado = elemento;
+    if (f->inicio == NULL)
+    {
+        novo->prox = NULL;
+        f->inicio = novo;
+    }
+    else if (novo->dado > f->inicio->dado)
+    {
+        novo->prox = f->inicio;
+        f->inicio = novo;
+    }
+    else
+    {
+        aux = f->inicio;
+        while (aux->prox != NULL && novo->dado < aux->prox->dado)
+        {
+            aux = aux->prox;
+        }
+        novo->prox = aux->prox;
+        aux->prox = novo;
+    }
+    f->qtde++;
 }
 
 /**
@@ -58,7 +94,15 @@ bool filaP_inserir(FilaPrioridade* f, TipoElemento elemento){
  * RETORNO: true se o elemento foi removido com sucesso e false caso contrário
  */
 bool filaP_remover(FilaPrioridade* f, TipoElemento* saida){
-    
+    if(!fila_ehValida(f)) return false;
+    if(filaP_vazia(f)) return false;
+    if(saida == NULL) return false;
+
+    *saida = f->inicio->dado;
+    f->inicio = f->inicio->prox;
+    f->qtde--;
+
+    return true;
 }
 
 /****************************************************************************************/
@@ -103,7 +147,7 @@ bool filaP_toString(FilaPrioridade* f, char* str){
 
     No* aux = f->inicio;
     
-    while(aux != NULL){    
+    while(aux != NULL){
         sprintf(elemento,"%d", aux->dado);
         strcat(str, elemento);
         if (aux->prox != NULL) strcat(str, ",");
@@ -112,6 +156,3 @@ bool filaP_toString(FilaPrioridade* f, char* str){
     strcat(str, "]");
     return true;
 }
-
-
-
